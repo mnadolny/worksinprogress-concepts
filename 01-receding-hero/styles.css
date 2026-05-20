@@ -1,0 +1,146 @@
+/* Prototype 01 — Receding hero
+ *
+ * Composition at rest:
+ *   [ full-bleed image, no overlay, no scrim, no filters ]
+ *   [ kicker / title / dek / byline ]
+ *   [ article body ]
+ *
+ * On scroll: the image scales down and fades out as it scrolls off.
+ * No filter, no desaturation — kept clean per the brief refinement.
+ */
+
+:root { --accent: #b4422d; }
+
+html, body { background: var(--paper); }
+
+/* --- Hero figure ---------------------------------------------------------- */
+
+.hero {
+  margin: 0;
+  width: 100%;
+  height: 90vh;
+  min-height: 26rem;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 45%;
+  transform-origin: 50% 45%;
+  /* Only the props we'll actually animate. No filter, no opacity-stacking. */
+  will-change: transform;
+}
+
+/* --- Article header block ------------------------------------------------- */
+
+.article-header-block {
+  max-width: var(--measure);
+  margin: clamp(3rem, 7vh, 5rem) auto clamp(2rem, 4vh, 3rem);
+  padding: 0 var(--gutter);
+}
+
+.article-kicker {
+  margin: 0 0 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.article-title {
+  margin: 0 0 0.6em;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+
+.article-dek {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.05rem, 1.35vw, 1.2rem);
+  line-height: 1.45;
+  max-width: 36rem;
+  color: var(--ink-soft);
+}
+
+.article-byline {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.article-byline .byline-sep { margin: 0 0.4em; opacity: 0.55; }
+
+/* --- SplitText masks ----------------------------------------------------- */
+/* SplitText with { mask: "lines" } generates a .split-mask wrapper per line.
+ * Give descenders + italic flourishes a touch of breathing room so the
+ * mask doesn't clip them at rest. */
+
+.split-mask {
+  padding-bottom: 0.08em;
+}
+
+/* --- Article body --------------------------------------------------------- */
+
+.article-mount {
+  position: relative;
+  padding-bottom: 6rem;
+}
+
+.article-mount .article-header { display: none; }
+
+.article-mount .article p.lede {
+  font-size: 1.18rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 1.4em;
+}
+.article-mount .article p.lede::first-line {
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+}
+
+.article-mount .article .fn-anchor {
+  font-family: var(--mono);
+  font-size: 0.62em;
+  color: var(--accent);
+  margin-left: 0.1em;
+  vertical-align: super;
+  line-height: 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.article-mount .footnotes {
+  margin: 4rem auto 0;
+  padding: 2rem 0 0;
+  max-width: var(--measure);
+  border-top: 1px solid var(--rule);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.article-mount .footnotes li { margin-bottom: 0.85em; }
+
+.article-mount figure { margin: 2.75rem 0; }
+.article-mount figcaption { color: var(--muted); }
+
+/* --- Mobile --------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  .hero { height: 70vh; min-height: 22rem; }
+  .article-title { font-size: clamp(2rem, 8vw, 2.75rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-img { transform: none !important; opacity: 1 !important; }
+}

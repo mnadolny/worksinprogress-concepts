@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Receding hero — Works in Progress concepts</title>
+    <meta
+      name="description"
+      content="Prototype 01 — A featured image at the top of the article that recedes as you scroll."
+    />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../shared/base.css" />
+    <link rel="stylesheet" href="../shared/nav.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Featured image — edge-to-edge, no overlay, no scrim. -->
+    <figure class="hero">
+      <img
+        class="hero-img"
+        src="../assets/images/hero-spain.png"
+        alt="Aerial view of a dense Spanish apartment city"
+        loading="eager"
+        decoding="async"
+      />
+    </figure>
+
+    <!-- Article header. SplitText wraps each line in its own mask at boot. -->
+    <header class="article-header-block">
+      <p class="article-kicker">Issue 21 · Urbanism</p>
+      <h1 class="article-title display">Triumph of the Spanish&nbsp;city</h1>
+      <p class="article-dek">
+        The traditional European apartment city has declined almost everywhere.
+        There is one big exception.
+      </p>
+      <p class="article-byline">
+        <span class="byline-name">Harry Law</span>
+        <span class="byline-sep">·</span>
+        <time datetime="2026-05-14">14 May 2026</time>
+      </p>
+    </header>
+
+    <main id="article-mount" class="article-mount"></main>
+
+    <!-- GSAP 3.13 — SplitText is included for free as of this release. -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+
+    <script src="../shared/nav.js" defer></script>
+    <script src="receding-hero.js" defer></script>
+  </body>
+</html>
