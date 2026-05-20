@@ -1,0 +1,161 @@
+/* Prototype 02 — Animated drop cap
+ *
+ * Composition at rest:
+ *   [ kicker / title / dek / byline ]
+ *   [ article body — first paragraph carries an oversized "S" ]
+ *
+ * The cap is an SVG <text> living inside the lede paragraph as a CSS float.
+ * On entry, the outline draws itself in (stroke-dashoffset → 0), then the
+ * fill crossfades and the stroke fades out, leaving the solid glyph.
+ */
+
+:root { --accent: #1e3a5f; }     /* deep ink-blue — book-traditional drop cap */
+
+html, body { background: var(--paper); }
+
+/* Pre-hide the article on load — JS fades these in once the body is fetched
+ * and fonts are ready, then plays the dropcap. Keeps the entry composed
+ * instead of letting the page paint cold and only the cap come alive. */
+.article-header-block,
+.article-mount { opacity: 0; }
+
+/* --- Article header block ------------------------------------------------- */
+
+.article-header-block {
+  max-width: var(--measure);
+  margin: clamp(5rem, 12vh, 9rem) auto clamp(2rem, 4vh, 3rem);
+  padding: 0 var(--gutter);
+}
+
+.article-kicker {
+  margin: 0 0 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.article-title {
+  margin: 0 0 0.6em;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+
+.article-dek {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.05rem, 1.35vw, 1.2rem);
+  line-height: 1.45;
+  max-width: 34rem;
+  color: var(--ink-soft);
+}
+
+.article-byline {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.article-byline .byline-sep { margin: 0 0.4em; opacity: 0.55; }
+
+/* --- Article body --------------------------------------------------------- */
+
+.article-mount { position: relative; padding-bottom: 6rem; }
+.article-mount .article-header { display: none; } /* shared content has its own header — hide it */
+
+.article-mount .article p.lede {
+  font-size: 1.18rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 1.4em;
+  text-indent: 0;
+}
+
+.article-mount .article p { text-indent: 1.25em; }
+.article-mount .article p.lede,
+.article-mount .article p:first-of-type { text-indent: 0; }
+
+.article-mount .article .fn-anchor {
+  font-family: var(--mono);
+  font-size: 0.62em;
+  color: var(--accent);
+  margin-left: 0.1em;
+  vertical-align: super;
+  line-height: 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.article-mount .footnotes {
+  margin: 4rem auto 0;
+  padding: 2rem 0 0;
+  max-width: var(--measure);
+  border-top: 1px solid var(--rule);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.article-mount .footnotes li { margin-bottom: 0.85em; }
+.article-mount figure { margin: 2.75rem 0; }
+.article-mount figcaption { color: var(--muted); }
+
+/* --- Drop cap ------------------------------------------------------------ */
+/* The .dropcap is what floats. Inside, an SVG <text> renders the glyph.
+ * Float + a tight line-height keeps the body wrap clean to the cap's
+ * right edge across ~3 lines of lede. */
+
+.dropcap {
+  float: left;
+  position: relative;
+  font-size: 6.2em;
+  line-height: 0.82;
+  margin: 0.05em 0.12em -0.08em 0;
+}
+
+.dropcap .glyph-svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  overflow: visible;
+}
+
+.dropcap .glyph-svg text {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1em;
+  letter-spacing: -0.02em;
+
+  fill: var(--accent);
+  fill-opacity: 0;            /* JS fades this to 1 after the outline draws */
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  paint-order: stroke;
+}
+
+/* --- Mobile -------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .article-header-block { margin-top: clamp(4rem, 10vh, 6rem); }
+  .dropcap {
+    font-size: 5.2em;
+    margin: 0.05em 0.1em -0.08em 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-header-block,
+  .article-mount { opacity: 1 !important; }
+  .dropcap .glyph-svg text {
+    fill-opacity: 1 !important;
+    stroke: none !important;
+    stroke-dasharray: none !important;
+  }
+}
