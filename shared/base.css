@@ -1,0 +1,125 @@
+/* shared/base.css — design tokens, type system, baseline grid
+ * Loaded by every page. Per-prototype overrides go in the prototype folder.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* color */
+  --paper: #f4efe6;
+  --paper-deep: #ece5d6;
+  --ink: #1a1a1a;
+  --ink-soft: #2a2a2a;
+  --muted: #8a8276;
+  --rule: #d8cfbe;
+  --accent: #b4422d; /* warm red — default; prototypes override */
+
+  /* type */
+  --serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* measure */
+  --measure: 38rem;        /* ~680px reading column */
+  --measure-wide: 56rem;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+
+  /* baseline */
+  --baseline: 1.6;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: var(--baseline);
+  font-feature-settings: "kern", "liga", "onum";
+}
+
+img, svg, video { max-width: 100%; display: block; height: auto; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* type roles */
+.kicker, .mono, .meta {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.display {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: normal;
+  letter-spacing: -0.012em;
+  line-height: 1.04;
+}
+
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.008em; }
+h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.04; font-weight: 300; }
+h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.2; margin: 2.5rem 0 1rem; }
+h3 { font-size: 1.25rem; line-height: 1.3; margin: 2rem 0 0.5rem; }
+
+p { margin: 0 0 1.1em; }
+p + p { text-indent: 1.25em; }
+p.lede, p:first-of-type { text-indent: 0; }
+
+::selection { background: var(--ink); color: var(--paper); }
+
+/* utility */
+.wrap { max-width: var(--measure-wide); margin: 0 auto; padding: 0 var(--gutter); }
+.measure { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter); }
+.rule { border: 0; border-top: 1px solid var(--rule); margin: 3rem 0; }
+
+/* article shell (used by prototypes 01–07) */
+.article {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.article h2 { margin-top: 3rem; }
+.article figure { margin: 2.5rem 0; }
+.article figcaption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* focus */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

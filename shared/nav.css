@@ -1,0 +1,74 @@
+/* shared/nav.css — chrome that wraps every prototype page
+ * back-to-index link top-left, optional variant toggle top-right
+ */
+
+.proto-chrome {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem var(--gutter);
+  pointer-events: none; /* let clicks pass through gaps */
+  mix-blend-mode: difference;
+  color: #ddd;
+}
+.proto-chrome > * { pointer-events: auto; }
+
+.proto-back {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+  border-bottom: none;
+  opacity: 0.75;
+  transition: opacity 180ms ease, transform 220ms ease;
+}
+.proto-back:hover {
+  opacity: 1;
+  transform: translateX(-2px);
+  color: inherit;
+  border-bottom: none;
+}
+.proto-back .arrow { display: inline-block; margin-right: 0.4em; }
+
+/* variant toggle — small pill group */
+.variant-toggle {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.variant-toggle button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  opacity: 0.65;
+  transition: opacity 180ms ease, background 180ms ease;
+}
+.variant-toggle button:hover { opacity: 1; }
+.variant-toggle button[aria-pressed="true"] {
+  background: rgba(255,255,255,0.16);
+  opacity: 1;
+}
+
+/* mobile */
+@media (max-width: 640px) {
+  .proto-chrome { padding: 0.85rem 1rem; }
+  .variant-toggle button { padding: 0.35rem 0.6rem; }
+}

@@ -3,26 +3,292 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>works in progress — concepts</title>
+    <title>Works in Progress — Interaction concepts</title>
+    <meta
+      name="description"
+      content="Six signature interaction concepts for a Works in Progress redesign — a reading-first treatment of editorial moments."
+    />
+    <link rel="stylesheet" href="shared/base.css" />
     <style>
-      :root { color-scheme: light dark; }
-      body {
-        font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-        max-width: 42rem;
-        margin: 4rem auto;
-        padding: 0 1.25rem;
-        line-height: 1.55;
+      /* index-only styles — the index is itself a designed artifact */
+      body { background: var(--paper); }
+
+      .page {
+        max-width: 78rem;
+        margin: 0 auto;
+        padding: clamp(2rem, 5vw, 4rem) var(--gutter) 4rem;
       }
-      h1 { margin-bottom: 0.25rem; }
-      .muted { color: #6b7280; }
-      ul { padding-left: 1.1rem; }
+
+      .topline {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: clamp(5rem, 14vw, 11rem);
+      }
+      .topline .kicker { color: var(--ink); opacity: 0.75; }
+      .topline .issue { color: var(--muted); }
+
+      .lede {
+        max-width: 44rem;
+        margin-bottom: clamp(4rem, 9vw, 7rem);
+      }
+      .lede h1 {
+        font-size: clamp(2.75rem, 6.2vw, 5.25rem);
+        font-weight: 300;
+        line-height: 1.02;
+        letter-spacing: -0.018em;
+        margin: 0 0 2rem;
+      }
+      .lede h1 em {
+        font-style: italic;
+        font-weight: 300;
+        color: var(--accent);
+      }
+      .lede p {
+        font-size: 1.125rem;
+        line-height: 1.55;
+        max-width: 36rem;
+        color: var(--ink-soft);
+      }
+
+      /* card grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--rule);
+        border: 1px solid var(--rule);
+      }
+      .grid > * { background: var(--paper); }
+
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1.75rem 1.75rem;
+        min-height: 19rem;
+        color: inherit;
+        border-bottom: none;
+        transition: background 220ms ease, transform 320ms cubic-bezier(.2,.7,.2,1);
+        text-decoration: none;
+      }
+      .card:hover {
+        background: var(--paper-deep);
+        color: inherit;
+        border-bottom: none;
+      }
+      .card:hover .card-title { color: var(--accent); }
+      .card:hover .card-title::after { transform: scaleX(1); }
+
+      .card .num {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: auto;
+      }
+      .card-title {
+        position: relative;
+        font-family: var(--serif);
+        font-weight: 300;
+        font-size: 1.65rem;
+        line-height: 1.1;
+        letter-spacing: -0.012em;
+        margin: 4rem 0 0.75rem;
+        transition: color 220ms ease;
+      }
+      .card-title::after {
+        content: "";
+        position: absolute;
+        left: 0; bottom: -4px;
+        width: 2.25rem; height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 320ms cubic-bezier(.2,.7,.2,1);
+      }
+      .card-caption {
+        font-size: 0.95rem;
+        line-height: 1.45;
+        color: var(--ink-soft);
+        max-width: 22rem;
+        margin: 0;
+      }
+      .card-status {
+        position: absolute;
+        top: 1.75rem;
+        right: 1.75rem;
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 0.25rem 0.55rem;
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+      }
+      .card-status[data-state="ready"] {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .card[aria-disabled="true"] {
+        cursor: not-allowed;
+      }
+      .card[aria-disabled="true"]:hover {
+        background: var(--paper);
+        transform: none;
+      }
+      .card[aria-disabled="true"]:hover .card-title { color: inherit; }
+      .card[aria-disabled="true"]:hover .card-title::after { transform: scaleX(0); }
+      .card[aria-disabled="true"] .num,
+      .card[aria-disabled="true"] .card-title,
+      .card[aria-disabled="true"] .card-caption {
+        opacity: 0.55;
+      }
+
+      /* the wide 07 card */
+      .card-wide {
+        grid-column: 1 / -1;
+        min-height: 13rem;
+        padding: 2.25rem 2rem;
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        gap: 2.5rem;
+        align-items: end;
+      }
+      .card-wide .card-title { font-size: 2rem; margin: 1.5rem 0 0; }
+      .card-wide .num { margin-bottom: 0; }
+      .card-wide .card-caption {
+        max-width: 32rem;
+        font-size: 1rem;
+        align-self: end;
+        padding-bottom: 0.4rem;
+      }
+
+      /* footer */
+      .footer {
+        margin-top: 5rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .footer a { border-bottom: none; color: inherit; }
+      .footer a:hover { color: var(--accent); }
+
+      /* mobile */
+      @media (max-width: 880px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 560px) {
+        .grid { grid-template-columns: 1fr; }
+        .card-wide { grid-template-columns: 1fr; gap: 1rem; }
+        .card-wide .card-caption { padding-bottom: 0; }
+        .topline { margin-bottom: 3rem; }
+      }
     </style>
   </head>
   <body>
-    <h1>works in progress</h1>
-    <p class="muted">concept prototypes</p>
-    <ul>
-      <!-- prototypes will be linked here -->
-    </ul>
+    <main class="page">
+      <header class="topline">
+        <span class="kicker">Works in Progress · Interaction concepts</span>
+        <span class="kicker issue">Vol. 01 — Concept deck</span>
+      </header>
+
+      <section class="lede">
+        <h1>Six signature moments<br />for a <em>reading-first</em> redesign.</h1>
+        <p>
+          A short pitch deck of working prototypes for a Works in Progress redesign concept.
+          Each demonstrates one editorial moment — a hero treatment, a typographic flourish,
+          a way to handle pullquotes, footnotes, reading progress, and inline galleries.
+          Take them one at a time, or jump to the seventh card to see all six stitched into
+          a single demo article. Best on desktop; mobile fallbacks included.
+        </p>
+      </section>
+
+      <nav class="grid" aria-label="Prototypes">
+        <a class="card" href="01-receding-hero/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">01</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Receding hero</h2>
+          <p class="card-caption">
+            A full-bleed illustration that pushes back in z-space as you scroll, the headline
+            floating up over it.
+          </p>
+        </a>
+
+        <a class="card" href="02-animated-dropcap/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">02</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Animated drop cap</h2>
+          <p class="card-caption">
+            An oversized opening letter that arrives with intention, then settles into the
+            reading.
+          </p>
+        </a>
+
+        <a class="card" href="03-pullquote-takeover/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">03</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Pullquote takeover</h2>
+          <p class="card-caption">
+            A pullquote that scales up to claim the full viewport, holds a beat, then releases
+            back into flow.
+          </p>
+        </a>
+
+        <a class="card" href="04-footnote-hovercard/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">04</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Footnote hover-card</h2>
+          <p class="card-caption">
+            Hover a footnote and a small, typeset card appears beside it. Click to pin, mobile
+            taps to expand.
+          </p>
+        </a>
+
+        <a class="card" href="05-composed-progress-bar/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">05</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Composed progress bar</h2>
+          <p class="card-caption">
+            Not a thin line — a film-scrubber for the essay, with section markers, footnote
+            ticks, and figure positions.
+          </p>
+        </a>
+
+        <a class="card" href="06-horizontal-gallery/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <span class="num">06</span>
+          <span class="card-status" data-state="coming">Coming</span>
+          <h2 class="card-title">Horizontal inline gallery</h2>
+          <p class="card-caption">
+            Vertical scroll converts to horizontal across a sequence of images, then returns to
+            the page.
+          </p>
+        </a>
+
+        <a class="card card-wide" href="07-demo-article/index.html" aria-disabled="true" onclick="event.preventDefault()">
+          <div>
+            <span class="num">07 — Demo article</span>
+            <span class="card-status" data-state="coming">Coming</span>
+            <h2 class="card-title">All six, stitched into one essay.</h2>
+          </div>
+          <p class="card-caption">
+            The leave-behind. A complete sample article using each interaction in its natural
+            position — the URL the client returns to after the meeting.
+          </p>
+        </a>
+      </nav>
+
+      <footer class="footer">
+        <span>Built for Works in Progress · concept deck</span>
+        <a href="https://worksinprogress.co" target="_blank" rel="noopener">worksinprogress.co ↗</a>
+      </footer>
+    </main>
   </body>
 </html>
