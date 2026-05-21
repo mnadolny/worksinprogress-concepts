@@ -1,0 +1,260 @@
+/* Prototype 03 — Pullquote takeover
+ *
+ * The moment: a pullquote sits inline at reading scale, then as the reader
+ * scrolls into its zone, it scales up to claim the viewport, holds a beat
+ * with the body receding behind it, and releases back into flow.
+ *
+ * Layered treatment (variant A, default):
+ *   - Variable-weight scrub: 380 → 600 as the quote materializes
+ *   - Oversized ornamental quote-mark drifts in behind the words
+ *   - Attribution slides up beneath the quote near peak takeover, like a film credit
+ *   - Body recedes in depth (opacity + scale + light blur) — quote lifts off the page
+ *
+ * Variants:
+ *   B — word-by-word cadence reveal (Splitting.js stagger), no weight scrub
+ *   C — accent-color wash takes over the background mid-pin
+ *
+ * All animation is scrubbed to a single pinned ScrollTrigger timeline.
+ */
+
+:root {
+  /* Oxblood — the classic print-magazine pullquote color. */
+  --accent: #6b1f2a;
+  --accent-soft: rgba(107, 31, 42, 0.08);
+}
+
+html, body { background: var(--paper); }
+/* The full-bleed pullquote zone uses 100vw — guard against the scrollbar
+ * width introducing a horizontal scroll on the page. */
+body { overflow-x: clip; }
+
+/* Hide on load; JS fades in after fonts settle so the type doesn't reflow. */
+.article.reading { opacity: 0; }
+
+/* --- Header ------------------------------------------------------------- */
+
+.article-header-block {
+  max-width: var(--measure);
+  margin: clamp(5rem, 12vh, 9rem) auto clamp(2.5rem, 5vh, 3.5rem);
+  padding: 0 var(--gutter);
+}
+.article-kicker {
+  margin: 0 0 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.article-title {
+  margin: 0 0 0.6em;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+.article-byline {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.article-byline .byline-sep { margin: 0 0.4em; opacity: 0.55; }
+
+/* --- Body --------------------------------------------------------------- */
+
+.article-body {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+
+  /* The body's "recession" axis. JS scrubs these custom properties; CSS
+   * binds them to filter/transform/opacity so we get one timeline, not three. */
+  --body-recede: 0;        /* 0 → 1, how far back the body has gone */
+  opacity: calc(1 - 0.88 * var(--body-recede));
+  filter: blur(calc(1.4px * var(--body-recede)));
+  transform: scale(calc(1 - 0.04 * var(--body-recede)));
+  transform-origin: center top;
+  transition: none;       /* GSAP owns the values; CSS just renders them */
+  will-change: opacity, filter, transform;
+}
+
+.article-body p {
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  color: var(--ink-soft);
+}
+
+/* --- Pullquote wrap ----------------------------------------------------- */
+/* The wrap is the pullquote's natural in-flow slot between paragraphs.
+ * It is full-bleed (so the scaled-up text has room) but stays at the
+ * height its content needs — no giant empty zone.
+ *
+ * ScrollTrigger pins this element during the takeover; pin adds its own
+ * spacer (only as much as the takeover scroll needs), so on either side
+ * of the takeover the pullquote sits naturally between paragraphs.
+ *
+ * CRITICAL: full-bleed via margins, NOT transform — a transform would
+ * create a new containing block and break ScrollTrigger's `pin` (which
+ * works by switching to position: fixed). */
+.pullquote-wrap {
+  position: relative;
+  width: 100vw;
+  margin-left:  calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: clamp(3rem, 7vh, 5rem) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* Variant C — accent-color wash that sweeps in behind the quote. */
+.pullquote-wash {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;                /* JS scrubs to ~0.95 only in variant C */
+  pointer-events: none;
+}
+
+/* The oversized ornamental quotation mark. */
+.pullquote-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -68%) scale(var(--mark-scale, 0.6));
+  transform-origin: center;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(18rem, 32vw, 32rem);
+  line-height: 0.7;
+  color: var(--accent);
+  opacity: 0;                /* JS fades in during takeover */
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* --- Pullquote itself --------------------------------------------------- */
+/* Resting state: a quiet, indented pullquote in flow. The takeover transform
+ * is composed on top of this — see --q-scale below. */
+
+.pullquote {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0 var(--gutter);
+  text-align: center;
+
+  /* Scrubbed by JS — single source of truth for "how taken-over are we". */
+  --q-scale: 1;
+  --q-weight: 380;
+  --q-letter: -0.005em;
+}
+
+.pullquote-text {
+  margin: 0 auto;
+  font-family: var(--serif);
+  font-style: italic;
+
+  /* CRITICAL: scale via font-size only — transform:scale rasterizes at the
+   * resting size and stretches the bitmap, so the takeover looks pixelated.
+   * Font-size forces re-rasterization at every scale. */
+  font-size: calc(clamp(1.45rem, 2.1vw, 1.7rem) * var(--q-scale));
+
+  /* CRITICAL: max-width in `em` — em is relative to the current font-size,
+   * so the container grows in lockstep with the text. Line-wrap stays
+   * identical at every scale; no words jump to a new line mid-scrub. */
+  max-width: min(16em, 90vw);
+
+  line-height: 1.18;
+  letter-spacing: var(--q-letter);
+  color: var(--ink);
+  font-variation-settings: "wght" var(--q-weight), "opsz" 48;
+  /* In variant C the text inverts to paper-on-accent. */
+  transition: color 600ms ease;
+}
+
+[data-variant="C"] .pullquote-text { /* text color flips during wash */ }
+
+/* Attribution — film-credit, hidden at rest, slides up during takeover. */
+.pullquote-attribution {
+  display: block;
+  margin-top: 1.6em;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateY(0.6em);
+  will-change: opacity, transform;
+}
+.pullquote-attribution .dash { margin-right: 0.5em; color: var(--accent); }
+.pullquote-attribution .sep  { margin: 0 0.5em; opacity: 0.55; }
+.pullquote-attribution cite  { font-style: normal; color: var(--ink-soft); }
+
+/* --- Variant B: word-by-word cadence ------------------------------------ */
+/* Splitting.js wraps every word in .word with a CSS custom property --word-index
+ * we can stagger. In variant B the words start invisible and ink in one by one
+ * during the scrub. In other variants they stay visible from the start. */
+
+/* Variant B — per-word weight cadence. Words stay visible the whole time
+ * (never blank). Each word's variable-font weight pulses from 380 up to 620
+ * and back, in sequence across the quote — like a reading-aloud rhythm.
+ * JS staggers --word-weight per .word; CSS binds it to font-variation-settings. */
+[data-variant="B"] .pullquote-text .word {
+  display: inline-block;
+  font-variation-settings: "wght" var(--word-weight, 380), "opsz" 48;
+  will-change: font-variation-settings;
+}
+
+/* --- Mobile ------------------------------------------------------------- */
+/* Per plan: skip the takeover below 768px. Inline-enlarge the quote instead,
+ * with the mark as a tasteful drop-cap-sized ornament. */
+
+@media (max-width: 767px) {
+  .pullquote-wrap {
+    padding: clamp(2.5rem, 8vh, 4rem) 0;
+  }
+  .pullquote-mark {
+    position: static;
+    transform: none;
+    font-size: 6rem;
+    line-height: 0.6;
+    opacity: 0.9;
+    text-align: center;
+    margin-bottom: -1rem;
+  }
+  .pullquote {
+    --q-scale: 1;
+    --q-weight: 500;
+  }
+  .pullquote-text {
+    font-size: clamp(1.55rem, 5.5vw, 1.95rem);
+  }
+  .pullquote-attribution {
+    opacity: 1;
+    transform: none;
+    margin-top: 1.4em;
+  }
+  .article-body {
+    --body-recede: 0 !important;
+  }
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .article.reading { opacity: 1 !important; }
+  .pullquote-mark { position: static; transform: none; font-size: 6rem; opacity: 0.9; text-align: center; }
+  .pullquote { --q-scale: 1; --q-weight: 500; }
+  .pullquote-attribution { opacity: 1; transform: none; }
+  .article-body { --body-recede: 0 !important; }
+}
