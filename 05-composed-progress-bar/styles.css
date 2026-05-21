@@ -1,0 +1,490 @@
+/* 05 — Composed progress bar
+ * Accent: muted teal — sits back, doesn't compete with article
+ */
+
+:root {
+  --accent: #3a7d6e;
+  --accent-soft: rgba(58, 125, 110, 0.35);
+  --rail-width: 3px;
+  --rail-width-hover: 28px;
+  --rail-offset: 1.5rem;
+}
+
+/* ── Article shell ─────────────────────────────────── */
+
+.article-shell {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.article-header-block {
+  padding: clamp(4rem, 12vw, 9rem) 0 3rem;
+}
+
+.article-kicker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.article-title {
+  margin: 0 0 1rem;
+}
+
+.article-dek {
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  max-width: 32rem;
+  margin: 0 0 1.5rem;
+}
+
+.article-byline {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0;
+}
+.byline-sep { margin: 0 0.4em; opacity: 0.5; }
+
+.section-heading {
+  margin-top: 3rem;
+}
+
+.article-body figure {
+  margin: 2.5rem 0;
+}
+.article-body figcaption {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.75rem;
+}
+
+.figure-pair img + img { margin-top: 0.5rem; }
+
+.fn-anchor {
+  font-family: var(--mono);
+  font-size: 0.65em;
+  color: var(--accent);
+  cursor: default;
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+  margin-left: 1px;
+}
+
+.pullquote {
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--accent);
+  border-left: 2px solid var(--accent);
+  padding-left: 1.5rem;
+  margin: 2.5rem 0;
+  max-width: 28rem;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   VARIANT A — Vertical rail (right side)
+   ═══════════════════════════════════════════════════ */
+
+.progress-rail {
+  position: fixed;
+  top: 0;
+  right: var(--rail-offset);
+  width: var(--rail-width);
+  height: 100vh;
+  z-index: 90;
+  cursor: pointer;
+  transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.progress-rail:hover,
+.progress-rail.is-expanded {
+  width: var(--rail-width-hover);
+}
+
+.rail-track {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--rail-width);
+  height: 100%;
+  background: var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.progress-rail:hover .rail-track,
+.progress-rail.is-expanded .rail-track {
+  width: 3px;
+}
+
+.rail-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  border-radius: 2px;
+  will-change: height;
+}
+
+.rail-markers {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.rail-marker {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 220ms ease;
+}
+
+.rail-marker-tick {
+  flex-shrink: 0;
+  background: var(--ink);
+  border-radius: 1px;
+  transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              height 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              background 220ms ease;
+}
+
+/* Section markers */
+.rail-marker[data-type="section"] .rail-marker-tick {
+  width: 10px;
+  height: 1.5px;
+}
+
+.progress-rail:hover .rail-marker[data-type="section"] .rail-marker-tick {
+  width: 16px;
+  height: 2px;
+}
+
+/* Footnote markers */
+.rail-marker[data-type="footnote"] .rail-marker-tick {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.progress-rail:hover .rail-marker[data-type="footnote"] .rail-marker-tick {
+  width: 5px;
+  height: 5px;
+  opacity: 0.8;
+}
+
+/* Figure markers */
+.rail-marker[data-type="figure"] .rail-marker-tick {
+  width: 7px;
+  height: 3px;
+  border-radius: 0;
+  background: var(--muted);
+  opacity: 0.6;
+}
+
+.progress-rail:hover .rail-marker[data-type="figure"] .rail-marker-tick {
+  width: 12px;
+  height: 4px;
+  opacity: 0.85;
+}
+
+/* Labels (appear on hover) */
+.rail-marker-label {
+  position: absolute;
+  right: calc(100% + 8px);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity 220ms ease, transform 220ms ease;
+  pointer-events: none;
+}
+
+.progress-rail:hover .rail-marker-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Tooltip */
+.rail-tooltip {
+  position: fixed;
+  right: calc(var(--rail-offset) + var(--rail-width-hover) + 12px);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.7rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 91;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   VARIANT B — Horizontal top bar
+   ═══════════════════════════════════════════════════ */
+
+.progress-bar-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 90;
+  cursor: pointer;
+  transition: height 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.progress-bar-top:hover {
+  height: 24px;
+}
+
+.bar-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--rule);
+  transition: height 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.progress-bar-top:hover .bar-track {
+  height: 3px;
+}
+
+.bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: var(--accent);
+  will-change: width;
+}
+
+.bar-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bar-marker {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.bar-marker-tick {
+  transition: height 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              width 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.bar-marker[data-type="section"] .bar-marker-tick {
+  width: 1.5px;
+  height: 8px;
+  background: var(--ink);
+}
+
+.progress-bar-top:hover .bar-marker[data-type="section"] .bar-marker-tick {
+  height: 14px;
+  width: 2px;
+}
+
+.bar-marker[data-type="footnote"] .bar-marker-tick {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+  margin-top: 1px;
+}
+
+.progress-bar-top:hover .bar-marker[data-type="footnote"] .bar-marker-tick {
+  width: 4px;
+  height: 4px;
+  margin-top: 6px;
+}
+
+.bar-marker[data-type="figure"] .bar-marker-tick {
+  width: 3px;
+  height: 6px;
+  background: var(--muted);
+  opacity: 0.6;
+}
+
+.progress-bar-top:hover .bar-marker[data-type="figure"] .bar-marker-tick {
+  height: 10px;
+  opacity: 0.85;
+}
+
+.bar-marker-label {
+  position: absolute;
+  top: 100%;
+  margin-top: 4px;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 220ms ease, transform 220ms ease;
+  pointer-events: none;
+}
+
+.progress-bar-top:hover .bar-marker-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   VARIANT C — Floating corner module
+   ═══════════════════════════════════════════════════ */
+
+.progress-float {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.7rem 1rem 0.7rem 0.6rem;
+  border-radius: 999px;
+  z-index: 90;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 320ms ease, transform 320ms ease;
+  pointer-events: none;
+}
+
+.progress-float.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.float-ring {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+
+.float-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 3;
+}
+
+.float-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 125.66;
+  stroke-dashoffset: 125.66;
+  transition: stroke-dashoffset 180ms ease;
+}
+
+.float-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.float-section {
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.float-meta {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 230, 0.5);
+  line-height: 1;
+}
+
+
+/* ── Hide variants based on data-variant ─────────── */
+
+[data-variant="A"] .progress-bar-top,
+[data-variant="A"] .progress-float { display: none !important; }
+
+[data-variant="B"] .progress-rail,
+[data-variant="B"] .progress-float { display: none !important; }
+
+[data-variant="C"] .progress-rail,
+[data-variant="C"] .progress-bar-top { display: none !important; }
+
+
+/* ── Mobile ────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .progress-rail { display: none !important; }
+
+  [data-variant="A"] .progress-bar-top {
+    display: block !important;
+  }
+  [data-variant="A"] .progress-float { display: none !important; }
+
+  .progress-float {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.5rem 0.85rem 0.5rem 0.5rem;
+  }
+
+  .float-ring {
+    width: 30px;
+    height: 30px;
+  }
+}
