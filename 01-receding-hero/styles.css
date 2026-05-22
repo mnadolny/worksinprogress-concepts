@@ -1,12 +1,17 @@
 /* Prototype 01 — Receding hero
  *
- * Composition at rest:
+ * Three variants share the same markup. The active one is selected by the
+ * top-right toggle and reflected on <html data-variant="A|B|C">.
+ *
+ *  A — Receding image. Image scales/fades on scroll; header lines reveal.
+ *  B — Title card. Headline composited over hero; pinned 2-act cinematic
+ *      sequence on scroll (Ken Burns → word-shard ascent).
+ *  C — Placeholder (currently mirrors A).
+ *
+ * Composition at rest (variant A):
  *   [ full-bleed image, no overlay, no scrim, no filters ]
  *   [ kicker / title / dek / byline ]
  *   [ article body ]
- *
- * On scroll: the image scales down and fades out as it scrolls off.
- * No filter, no desaturation — kept clean per the brief refinement.
  */
 
 :root { --accent: #b4422d; }
@@ -16,6 +21,7 @@ html, body { background: var(--paper); }
 /* --- Hero figure ---------------------------------------------------------- */
 
 .hero {
+  position: relative;        /* anchor for variant-B overlay */
   margin: 0;
   width: 100%;
   height: 90vh;
@@ -31,7 +37,6 @@ html, body { background: var(--paper); }
   object-fit: cover;
   object-position: center 45%;
   transform-origin: 50% 45%;
-  /* Only the props we'll actually animate. No filter, no opacity-stacking. */
   will-change: transform;
 }
 
@@ -81,15 +86,98 @@ html, body { background: var(--paper); }
 .article-byline .byline-sep { margin: 0 0.4em; opacity: 0.55; }
 
 /* --- SplitText masks ----------------------------------------------------- */
-/* SplitText with { mask: "lines" } generates a .split-mask wrapper per line.
- * Give descenders + italic flourishes a touch of breathing room so the
- * mask doesn't clip them at rest. */
 
-.split-mask {
-  padding-bottom: 0.08em;
+.split-mask { padding-bottom: 0.08em; }
+
+/* ==========================================================================
+   VARIANT B — Title card
+   ========================================================================== */
+
+/* When B is active, hide the in-flow title + kicker — they're cloned into the
+ * hero overlay. The article-header-block is reduced to dek + byline. */
+html.v-b-active .article-header-block .article-title,
+html.v-b-active .article-header-block .article-kicker { display: none; }
+
+html.v-b-active .article-header-block {
+  margin-top: clamp(4rem, 10vh, 7rem);
 }
 
-/* --- Article body --------------------------------------------------------- */
+/* No scrim, no gradient. The hero artwork stays pristine — it will often be
+ * commissioned illustration or photography and shouldn't be visually
+ * compromised. Title legibility is handled by a soft text-shadow only. */
+
+/* The overlay block — anchored bottom-left of the hero. Generous breathing
+ * room. */
+.hero-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 clamp(1.5rem, 6vw, 5.5rem) clamp(2rem, 6vh, 4.5rem);
+  color: var(--paper);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Thin accent rule that anchors the title block — draws in on intro. */
+.hero-overlay-rule {
+  display: block;
+  width: 3.25rem;
+  height: 1px;
+  background: var(--paper);
+  opacity: 0.9;
+  margin-bottom: 1.1rem;
+  transform-origin: 0% 50%;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.hero-overlay-kicker {
+  margin: 0 0 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0.85;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* The cinematic title. Bigger than variant A — this is the moment. Tight
+ * leading, slight optical letter-spacing, soft drop-shadow for separation
+ * from busy photographic areas (much subtler than a scrim). */
+.hero-overlay-title {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.75rem, 7.5vw, 6.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.022em;
+  color: var(--paper);
+  text-wrap: balance;
+  /* Soft "lens halo" text-shadow — readability without a scrim. Two layers:
+   * a tight 1px contact shadow for hard edges over light areas, plus a
+   * wider 28px diffuse glow that quietly darkens whatever is behind the
+   * letterforms. Both are low-opacity so the artwork still dominates. */
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 2px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* SplitText emits .hero-overlay-line (mask) and .hero-overlay-word (shard).
+ * Each line needs overflow:hidden for the word-shard ascent to read cleanly
+ * during Act 2; SplitText's mask wrapper handles that, but we add a hair of
+ * padding so italic ascenders / accented letters aren't clipped at rest. */
+.hero-overlay-line { padding-bottom: 0.05em; }
+.hero-overlay-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Article body
+   ========================================================================== */
 
 .article-mount {
   position: relative;
@@ -137,10 +225,21 @@ html, body { background: var(--paper); }
 /* --- Mobile --------------------------------------------------------------- */
 
 @media (max-width: 767px) {
-  .hero { height: 70vh; min-height: 22rem; }
+  .hero { height: 80vh; min-height: 22rem; }
   .article-title { font-size: clamp(2rem, 8vw, 2.75rem); }
+
+  .hero-overlay {
+    padding: 0 1.25rem 1.75rem;
+  }
+  .hero-overlay-title {
+    font-size: clamp(2.25rem, 10vw, 3.5rem);
+    max-width: none;
+  }
+  .hero-overlay-kicker { font-size: 0.66rem; letter-spacing: 0.14em; }
+  .hero-overlay-rule { width: 2.25rem; margin-bottom: 0.85rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-img { transform: none !important; opacity: 1 !important; }
+  .hero-overlay-word { transform: none !important; opacity: 1 !important; }
 }
