@@ -41,6 +41,33 @@
     document.documentElement.classList.remove("v-b-active");
   }
 
+  // --- Smooth scroll (Lenis) ------------------------------------------------
+  // Wires Lenis to GSAP's ticker so its RAF loop is the single source of truth
+  // for animation timing. Lenis's `scroll` event drives ScrollTrigger.update()
+  // so pinned sections stay perfectly in step with the eased scroll position
+  // — no double-RAF jitter, no missed updates during fast flings.
+
+  let lenis = null;
+  const expoOut = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
+
+  function initSmoothScroll() {
+    if (typeof Lenis === "undefined") return null;
+    if (mqReduced.matches) return null; // honor user preference
+
+    lenis = new Lenis({
+      duration: 1.05,            // glide length — long enough to feel inertial
+      easing: expoOut,
+      smoothWheel: true,
+      smoothTouch: false,        // touch already has native momentum — leave it
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0); // let Lenis own pacing
+
+    return lenis;
+  }
+
   // --- Load shared article body --------------------------------------------
 
   async function loadArticleBody() {
@@ -68,7 +95,7 @@
         trigger: hero,
         start: "top top",
         end: "bottom top",
-        scrub: 1,
+        scrub: 0.4,              // tight scrub — Lenis handles the easing
         invalidateOnRefresh: true,
         animation: gsap.to(img, { scale: 0.78, autoAlpha: 0, ease: "none" }),
       });
@@ -127,6 +154,23 @@
     hero.appendChild(overlay);
     register(() => overlay.remove());
 
+    // Wrap the hero in a tall "stage" so we can use CSS position:sticky on
+    // the hero itself. The stage's height defines the scroll runway; the
+    // sticky hero stays glued to the top of the viewport for that whole
+    // runway, then releases. Native sticky is buttery-smooth (no DOM
+    // mutation like GSAP's pin) and lets Lenis own the easing end-to-end.
+    const stage = document.createElement("div");
+    stage.className = "hero-stage";
+    hero.parentNode.insertBefore(stage, hero);
+    stage.appendChild(hero);
+    register(() => {
+      // Unwrap on teardown so variant A's layout is untouched.
+      if (stage.parentNode) {
+        stage.parentNode.insertBefore(hero, stage);
+        stage.remove();
+      }
+    });
+
     if (mqReduced.matches) {
       // Just reveal everything statically.
       buildLineRevealHeader([".article-dek", ".article-byline"]);
@@ -160,56 +204,61 @@
       .to(".hero-overlay-kicker", { autoAlpha: 1, y: 0, duration: 0.9 }, 0.35);
     register(() => intro.kill());
 
-    // -- Pinned scroll sequence ---------------------------------------------
-    // The whole hero is pinned for ~140% of viewport-height of scroll. Two
-    // acts orchestrated on one timeline scrubbed to scroll progress.
-    const pinTl = gsap.timeline({
+    // -- Sticky-driven cinematic sequence ----------------------------------
+    // The hero is CSS position:sticky inside .hero-stage (180vh tall, hero
+    // is 100vh). For 80vh of scroll, hero stays glued to the top of the
+    // viewport — visible and fully in frame. Across THAT range the image
+    // scales hard from 1.0 → 2.2 and the words ascend. The instant sticky
+    // releases, the hero scrolls out naturally over the next 80vh, and the
+    // article header (which sits right below .hero-stage in the document)
+    // arrives — no gap, no snap, no pin wrapper, no dead zone where the
+    // scrollbar moves but the screen doesn't. The user's scroll
+    // continuously drives visible motion: the zoom (during sticky), then
+    // the page itself scrolling the zoomed image out (after release).
+    const heroTl = gsap.timeline({
       defaults: { ease: "none" },
       scrollTrigger: {
-        trigger: hero,
+        trigger: stage,
         start: "top top",
-        end: "+=140%",
-        pin: true,
-        pinSpacing: true,
-        scrub: 0.8,
-        anticipatePin: 1,
+        end: "+=80%",            // 80vh — matches the sticky range exactly
+        scrub: 0.4,              // tight scrub, Lenis handles the smoothing
         invalidateOnRefresh: true,
       },
     });
     register(() => {
-      if (pinTl.scrollTrigger) pinTl.scrollTrigger.kill();
-      pinTl.kill();
+      if (heroTl.scrollTrigger) heroTl.scrollTrigger.kill();
+      heroTl.kill();
     });
 
-    // ACT 1 (0 → 0.5): the image breathes. Ken-Burns: pronounced zoom-in and
-    // a clear upward drift. Title + kicker hold their ground — the anchor.
-    // Note: image opacity is never touched. The artwork stays pristine through
-    // the entire sequence; only its framing changes.
-    pinTl
-      .to(img, { scale: 1.18, yPercent: -10 }, 0)
-      // Slight rule-stretch on Act 1 finale for editorial tension.
-      .to(rule, { width: "+=3rem" }, 0);
+    // Image: dramatic, continuous push-in across the WHOLE sticky range. No
+    // parallax drift — sticky already keeps the hero visually anchored, so
+    // we let scale do all the work. transform-origin: 50% 50% gives a true
+    // "camera dolly forward" feeling. duration: 1 makes the tween span the
+    // entire timeline so the zoom keeps advancing through the very last
+    // moment before sticky releases. The image is never faded.
+    heroTl.to(img, { scale: 2.2, duration: 1 }, 0);
 
-    // ACT 2 (0.5 → 1.0): liftoff. Image keeps drifting up AND zooming further
-    // — the camera is pushing into and past the city. Words decompose with a
-    // random-from stagger, ascending out of their line-masks. The image
-    // itself never fades; the words leave, the image continues its push-in.
-    pinTl
-      .to(img, { yPercent: -32, scale: 1.32 }, 0.5)
-      .to(
-        words,
-        {
-          yPercent: -180,
-          autoAlpha: 0,
-          stagger: { each: 0.05, from: "random" },
-        },
-        0.5
-      )
-      .to(
-        [".hero-overlay-kicker", rule],
-        { autoAlpha: 0, y: -24, duration: 0.4 },
-        0.55
-      );
+    // Words decompose across the first ~65% of the sticky range. By the
+    // time scroll progress is 0.65, the words are gone and the user sees
+    // only the dramatically zoomed image — a moment of pure visual climax
+    // before sticky releases at progress 1.0.
+    heroTl.to(
+      words,
+      {
+        yPercent: -180,
+        autoAlpha: 0,
+        stagger: { each: 0.04, from: "random" },
+        duration: 0.55,
+      },
+      0.05
+    );
+
+    // Kicker + accent rule lift away with the same gentle hand.
+    heroTl.to(
+      [".hero-overlay-kicker", rule],
+      { autoAlpha: 0, y: -24, duration: 0.35 },
+      0.1
+    );
 
     // Below-the-fold header reveal: dek + byline only (title + kicker live
     // in the hero now). Triggered when the article block enters viewport
@@ -359,6 +408,10 @@
     }
     gsap.registerPlugin(ScrollTrigger);
     if (typeof SplitText !== "undefined") gsap.registerPlugin(SplitText);
+
+    // Smooth scroll first — ScrollTrigger needs to know about Lenis before
+    // any triggers are created so its scroll listener uses Lenis's position.
+    initSmoothScroll();
 
     await loadArticleBody();
 

@@ -22,20 +22,30 @@ Title legibility is handled by a soft two-layer text-shadow (a 1px contact
 shadow plus a wider diffuse halo) so the cream type reads against any
 image without darkening the photograph.
 
-On scroll, the hero pins for ~140% of viewport-height and plays a two-act
-sequence scrubbed to scroll progress. **The image is never faded** — only
-its framing changes. Camera in, camera out, but the artwork holds.
+On scroll, the cinematic plays inside a **CSS `position: sticky`** stage.
+The hero (100vh) is wrapped in a 180vh-tall `.hero-stage` so the hero
+stays glued to the top of the viewport for 80vh of scroll — the
+cinematic window. Across that range, the image scales hard from 1.0 →
+2.2 (true center zoom, a "camera dolly forward"), and the words
+decompose — each *word* ascends out of its line-mask with a `random`
+stagger across the first ~65% of the sticky range. The kicker and accent
+rule lift away with them. **The image is never faded.**
 
-- **Act 1 — Anchor.** Pronounced Ken Burns push-in (scale 1 → 1.18) with a
-  clear upward drift (yPercent 0 → −10). Title holds its ground. The
-  accent rule extends a hair for editorial tension.
-- **Act 2 — Liftoff.** The image keeps pushing in (scale → 1.32) and
-  drifting up (yPercent → −32). The title decomposes — each *word*
-  (SplitText) ascends out of its line-mask with a `random` stagger, like
-  end credits rising. The kicker and rule lift away with it.
+The instant sticky releases, the hero scrolls out naturally over the
+next 80vh and the article header arrives — no gap, no snap, no GSAP
+pin, no spacer. The user's scroll continuously drives visible motion:
+the zoom (during sticky), then the page scrolling the zoomed image out
+(after release). Lenis owns the easing end-to-end.
 
-When the pin releases, the dek and byline arrive below in clean editorial
-flow via the same line-mask reveal as Variant A.
+After the hero exits, the dek + byline arrive via line-mask reveal,
+then the article body fades up in batches.
+
+**Why sticky instead of GSAP pin.** Earlier drafts pinned the hero with
+ScrollTrigger and felt "frozen" — scrollbar moved, screen sat still,
+animation completed mid-pin leaving a dead zone. Native CSS sticky is
+zero-cost, browser-rendered, and the animation duration exactly matches
+the sticky range so there's no static moment. Every scroll-wheel tick
+produces visible change.
 
 On boot, an intro plays once: title words rise into their line-masks
 (expo.out), the accent rule draws in left-to-right, and the kicker fades

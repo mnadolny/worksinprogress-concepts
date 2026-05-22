@@ -99,7 +99,33 @@ html.v-b-active .article-header-block .article-title,
 html.v-b-active .article-header-block .article-kicker { display: none; }
 
 html.v-b-active .article-header-block {
-  margin-top: clamp(4rem, 10vh, 7rem);
+  margin-top: clamp(2.5rem, 6vh, 4.5rem);
+}
+
+/* Sticky cinematic stage. The .hero (100vh) is wrapped in .hero-stage
+ * (180vh) so position:sticky on .hero glues it to the top of the viewport
+ * for 80vh of scroll — the window in which the zoom + word ascent play
+ * out. After that, sticky releases and the hero scrolls up naturally over
+ * the next 80vh into the article header, which sits immediately below the
+ * stage. No pin, no DOM mutation, no spacer — just native CSS sticky for a
+ * buttery scroll. */
+html.v-b-active .hero-stage {
+  position: relative;
+  height: 180vh;             /* 100vh sticky + 80vh hero-exit transition */
+  width: 100%;
+}
+html.v-b-active .hero {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* clip the zoomed image from bleeding outside the viewport frame */
+  overflow: hidden;
+}
+html.v-b-active .hero-img {
+  /* True center zoom — the "camera dolly forward" feel. With sticky pinning
+   * the hero, the parallax-drift trick is no longer needed; pure scale does
+   * all the cinematic heavy lifting. */
+  transform-origin: 50% 50%;
 }
 
 /* No scrim, no gradient. The hero artwork stays pristine — it will often be
