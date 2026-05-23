@@ -208,7 +208,7 @@
     // The hero is CSS position:sticky inside .hero-stage (180vh tall, hero
     // is 100vh). For 80vh of scroll, hero stays glued to the top of the
     // viewport — visible and fully in frame. Across THAT range the image
-    // scales hard from 1.0 → 2.2 and the words ascend. The instant sticky
+    // scales gently from 1.0 → 1.2 and the words ascend. The instant sticky
     // releases, the hero scrolls out naturally over the next 80vh, and the
     // article header (which sits right below .hero-stage in the document)
     // arrives — no gap, no snap, no pin wrapper, no dead zone where the
@@ -230,13 +230,14 @@
       heroTl.kill();
     });
 
-    // Image: dramatic, continuous push-in across the WHOLE sticky range. No
-    // parallax drift — sticky already keeps the hero visually anchored, so
-    // we let scale do all the work. transform-origin: 50% 50% gives a true
-    // "camera dolly forward" feeling. duration: 1 makes the tween span the
-    // entire timeline so the zoom keeps advancing through the very last
-    // moment before sticky releases. The image is never faded.
-    heroTl.to(img, { scale: 2.2, duration: 1 }, 0);
+    // Image: a restrained, continuous push-in across the WHOLE sticky range.
+    // No parallax drift — sticky already keeps the hero visually anchored,
+    // so we let scale do all the work. transform-origin: 50% 50% gives a
+    // true "camera dolly forward" feeling. duration: 1 makes the tween span
+    // the entire timeline so the zoom keeps advancing through the very last
+    // moment before sticky releases. The image is never faded. Scale tops
+    // out at 1.2 — a quiet drift forward, more breath than dolly.
+    heroTl.to(img, { scale: 1.2, duration: 1 }, 0);
 
     // Words decompose across the first ~65% of the sticky range. By the
     // time scroll progress is 0.65, the words are gone and the user sees
