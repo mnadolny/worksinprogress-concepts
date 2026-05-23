@@ -128,9 +128,10 @@ html.v-b-active .hero-img {
   transform-origin: 50% 50%;
 }
 
-/* No scrim, no gradient. The hero artwork stays pristine — it will often be
- * commissioned illustration or photography and shouldn't be visually
- * compromised. Title legibility is handled by a soft text-shadow only. */
+/* A whisper of a scrim — a very soft bottom-anchored gradient that gives the
+ * title block just enough tonal contrast for readability over light or busy
+ * artwork, without reading as a scrim. Tall and feathered so the transition
+ * to pristine artwork is imperceptible. The artwork still dominates. */
 
 /* The overlay block — anchored bottom-left of the hero. Generous breathing
  * room. */
@@ -142,6 +143,28 @@ html.v-b-active .hero-img {
   padding: 0 clamp(1.5rem, 6vw, 5.5rem) clamp(2rem, 6vh, 4.5rem);
   color: var(--paper);
   z-index: 2;
+  pointer-events: none;
+}
+
+/* Subtle readability scrim. Lives behind the text within the overlay block,
+ * extends slightly above and below for a feathered fade. Kept low-opacity
+ * (~22% at its darkest) so it reads as atmospheric vignetting, not a panel. */
+.hero-overlay::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* extend upward past the padding so the fade-out is soft, not abrupt */
+  top: -2.5rem;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.22) 35%,
+    rgba(0, 0, 0, 0.10) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: -1;
   pointer-events: none;
 }
 
