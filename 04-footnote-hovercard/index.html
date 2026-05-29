@@ -25,7 +25,7 @@
         </p>
       </header>
 
-      <div class="article-body" data-body>
+      <div class="article-body" data-body data-article="spain">
         <p class="lede">
           Spain's cities are unusual. They are much denser, tighter, and more deliberate
           than other European cities, let alone North American ones. They reject picket
@@ -133,10 +133,68 @@
           than applying them to cities that had radically departed from them.
         </p>
       </div>
+
+      <div class="article-body" data-body data-article="molerat">
+        <p class="lede">
+          Homo sapiens are strangely long-lived. There are several measures by which
+          this is true: size, heart rate, and reproductive window. In general, the more
+          intelligent the species, the longer its lifespan — and even in premodern
+          conditions, we outlast our fellow primates by a wide margin.<sup class="fn-anchor" data-fn="1" tabindex="0" role="button" aria-label="Footnote 1">1</sup>
+        </p>
+
+        <p>
+          We don't just have long lives for our size, we also have long lives for our
+          heart rates. Most mammals get about one billion heartbeats in their lifetime;
+          humans get more than two billion.
+        </p>
+
+        <h2 class="section-heading">Evolved to live</h2>
+
+        <p>
+          Physiologically, humans have some of the cancer-fighting adaptations that other
+          large, long-lived animals rely on. The puzzle of how a big, long-lived body
+          keeps cancer at bay — despite having so many more cells in which a tumour might
+          start — is known as Peto's paradox.
+        </p>
+
+        <p>
+          One explanation points to large animals' slow metabolisms, which drive fewer
+          cell divisions and so fewer of the mutations that lead to cancer. The same
+          pattern shows up closer to home, where size tracks cancer risk within a single
+          species.<sup class="fn-anchor" data-fn="2" tabindex="0" role="button" aria-label="Footnote 2">2</sup>
+        </p>
+
+        <h2 class="section-heading">Upgraded to live?</h2>
+
+        <p>
+          One option is to learn from the lobster. Telomeres, the repetitive strings of
+          DNA that cap our chromosomes, shorten a little every time a cell divides; once
+          they run down, the cell can no longer divide.<sup class="fn-anchor" data-fn="3" tabindex="0" role="button" aria-label="Footnote 3">3</sup>
+        </p>
+
+        <p>
+          There is a naturally occurring enzyme, telomerase, that can repair telomeres by
+          rebuilding their ends. Unfortunately, when telomerase was switched on in the
+          skin cells of mice, it did give them longer lives — but also gave them more
+          cancers.
+        </p>
+
+        <p>
+          Human life would be very different if we, like naked mole rats, could break out
+          of the exponential rise in mortality with age that the Gompertz law
+          describes.<sup class="fn-anchor" data-fn="4" tabindex="0" role="button" aria-label="Footnote 4">4</sup>
+        </p>
+
+        <p>
+          Evolution has tradeoffs. None of us would trade places with a clam or a
+          tortoise, but the existence of animals that can live for centuries makes it
+          worth asking what the underlying secret of aging really is.
+        </p>
+      </div>
     </article>
 
     <!-- Footnote content — hidden, read by JS -->
-    <ol class="footnotes-source" aria-label="Footnotes" hidden>
+    <ol class="footnotes-source" aria-label="Footnotes" hidden data-article="spain">
       <li id="fn-1">
         Eurostat housing statistics, 2023. Apartment shares vary considerably by EU
         member state — Spain and Latvia sit at the top of the distribution; Ireland and
@@ -162,6 +220,25 @@
       </li>
     </ol>
 
+    <ol class="footnotes-source" aria-label="Footnotes" hidden data-article="molerat">
+      <li id="fn-1">
+        But even in premodern conditions,
+        <a href="https://pubmed.ncbi.nlm.nih.gov/19966301/">we live much longer than
+        other primates</a>.
+      </li>
+      <li id="fn-2">
+        <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1939-1676.2011.0695.x">Larger
+        dog breeds get more cancer than smaller dog breeds</a>.
+      </li>
+      <li id="fn-3">
+        The repeated sequence differs between species; in humans it is 5'-TTGGGG.
+      </li>
+      <li id="fn-4">
+        The Spanish flu is unusual as a disease that disproportionately killed young
+        adults, rather than the very old and very young.
+      </li>
+    </ol>
+
     <!-- Margin rail container for Variant B -->
     <aside class="margin-rail" data-margin-rail aria-label="Footnotes rail" hidden>
     </aside>
@@ -177,6 +254,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script src="../shared/nav.js" defer></script>
+    <script src="../shared/articles.js" defer></script>
     <script src="footnotes.js" defer></script>
   </body>
 </html>

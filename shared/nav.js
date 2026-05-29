@@ -51,8 +51,20 @@
     return chrome;
   }
 
-  function mountVariants(keys, onChange, initial) {
+  // Right-side host shared by the variant toggle and the article toggle so
+  // they group together neatly instead of fighting over space-between.
+  function controlsHost() {
     const chrome = document.querySelector(".proto-chrome") || mountChrome();
+    let host = chrome.querySelector(".proto-controls");
+    if (!host) {
+      host = el("div", { class: "proto-controls" });
+      chrome.appendChild(host);
+    }
+    return host;
+  }
+
+  function mountVariants(keys, onChange, initial) {
+    const host = controlsHost();
     let active = initial || keys[0];
 
     const group = el("div", {
@@ -74,7 +86,7 @@
       )
     );
     buttons.forEach((b) => group.appendChild(b));
-    chrome.appendChild(group);
+    host.appendChild(group);
 
     function set(k) {
       active = k;
