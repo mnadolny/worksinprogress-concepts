@@ -4,12 +4,22 @@
  *   [ kicker / title / dek / byline ]
  *   [ article body — first paragraph carries an oversized "S" ]
  *
- * The cap is an SVG <text> living inside the lede paragraph as a CSS float.
- * On entry, the outline draws itself in (stroke-dashoffset → 0), then the
- * fill crossfades and the stroke fades out, leaving the solid glyph.
+ * The cap is an SVG glyph floated inside the lede paragraph. Two variants
+ * share the same markup, gated by a `data-variant` attribute on <html>
+ * (set by the top-right toggle):
+ *
+ *   A — Book traditional. The outline draws in (stroke-dashoffset → 0),
+ *       the fill crossfades, and the stroke fades out. Deep ink-blue.
+ *   B — Constructed capital. Renaissance "ad quadratum" geometry (square,
+ *       inscribed circle, centre cross, diagonals) draws first in sepia,
+ *       then the glyph strokes over it and fills; the scaffold settles to a
+ *       faint trace. Hovering the cap re-draws the construction.
  */
 
-:root { --accent: #1e3a5f; }     /* deep ink-blue — book-traditional drop cap */
+/* Per-variant accent + scaffold colours. */
+:root              { --accent: #1e3a5f; --construct: #b7965d; } /* book-traditional ink-blue */
+[data-variant="A"] { --accent: #1e3a5f; }
+[data-variant="B"] { --accent: #6b4a2f; --construct: #c2a06a; } /* iron-gall walnut ink */
 
 html, body { background: var(--paper); }
 
@@ -106,7 +116,10 @@ html, body { background: var(--paper); }
 .article-mount figcaption { color: var(--muted); }
 
 /* --- Drop cap ------------------------------------------------------------ */
-/* The .dropcap is what floats. Inside, an SVG <text> renders the glyph.
+/* The .dropcap is what floats. Inside, an SVG holds (back to front):
+ *   .dc-hit        — transparent full-box hover target
+ *   .dc-construct  — geometry scaffold (variant B only)
+ *   text.dc-ink    — the drawable glyph outline / solid fill
  * Float + a tight line-height keeps the body wrap clean to the cap's
  * right edge across ~3 lines of lede. */
 
@@ -117,6 +130,8 @@ html, body { background: var(--paper); }
   line-height: 0.82;
   margin: 0.05em 0.12em -0.08em 0;
 }
+/* B invites interaction; hint it. */
+[data-variant="B"] .dropcap { cursor: crosshair; }
 
 .dropcap .glyph-svg {
   display: block;
@@ -125,7 +140,8 @@ html, body { background: var(--paper); }
   overflow: visible;
 }
 
-.dropcap .glyph-svg text {
+/* The glyph itself. */
+.dropcap .dc-ink {
   font-family: var(--serif);
   font-weight: 300;
   font-size: 1em;
@@ -138,6 +154,18 @@ html, body { background: var(--paper); }
   stroke-linejoin: round;
   stroke-linecap: round;
   paint-order: stroke;
+}
+
+/* Transparent hover/hit area covering the whole cap box (see dropcap.js). */
+.dc-hit { fill: none; pointer-events: all; }
+
+/* Construction scaffold (variant B). */
+.dropcap .dc-construct { display: none; }
+[data-variant="B"] .dropcap .dc-construct { display: block; }
+.dc-line {
+  fill: none;
+  stroke: var(--construct);
+  stroke-width: 0.55;
 }
 
 /* --- Mobile -------------------------------------------------------------- */
@@ -153,9 +181,13 @@ html, body { background: var(--paper); }
 @media (prefers-reduced-motion: reduce) {
   .article-header-block,
   .article-mount { opacity: 1 !important; }
-  .dropcap .glyph-svg text {
-    fill-opacity: 1 !important;
-    stroke: none !important;
+  /* Resting states with no motion. */
+  .dropcap .dc-ink {
     stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    fill-opacity: 1 !important;
+    stroke-opacity: 0 !important;
   }
+  [data-variant="B"] .dropcap .dc-construct { opacity: 0.4; }
+  .dc-line { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
 }
