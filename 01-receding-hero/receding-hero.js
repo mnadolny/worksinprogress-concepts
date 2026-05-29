@@ -74,7 +74,10 @@
     const mount = document.getElementById("article-mount");
     if (!mount) return;
     try {
-      const res = await fetch("../assets/article-content.html");
+      const src =
+        (window.ProtoArticle && ProtoArticle.data.body) ||
+        "../assets/article-content.html";
+      const res = await fetch(src);
       mount.innerHTML = await res.text();
     } catch (err) {
       console.warn("article-content.html not loaded:", err);
@@ -409,6 +412,10 @@
     }
     gsap.registerPlugin(ScrollTrigger);
     if (typeof SplitText !== "undefined") gsap.registerPlugin(SplitText);
+
+    // Fill header + hero from the active article (spain | molerat) before any
+    // SplitText/measurement runs against them.
+    if (window.ProtoArticle) ProtoArticle.applyHeader();
 
     // Smooth scroll first — ScrollTrigger needs to know about Lenis before
     // any triggers are created so its scroll listener uses Lenis's position.

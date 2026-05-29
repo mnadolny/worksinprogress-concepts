@@ -25,7 +25,7 @@
         </p>
       </header>
 
-      <div class="article-body" data-body>
+      <div class="article-body" data-body data-article="spain">
         <p class="lede">
           Spain's cities are unusual. They are much denser, tighter, and more deliberate
           than other European cities, let alone North American ones. They reject picket
@@ -49,9 +49,29 @@
         </p>
       </div>
 
+      <div class="article-body" data-body data-article="molerat">
+        <p class="lede">
+          The Turritopsis dohrnii is a small, bell-shaped jellyfish found in temperate
+          and tropical waters. This deep-water, alien-seeming creature has a unique
+          ability to regenerate itself: in cases of extreme stress, the adult jellyfish
+          can, in a matter of days, transform back into an infant-like polyp stage.
+        </p>
+        <p>
+          This process can theoretically happen on an infinite loop, meaning that if the
+          jellyfish managed to escape disease and predation, it could live forever. In a
+          lab, these jellyfish have been kept alive for two years, respawning 11 times.
+        </p>
+        <p>
+          Lobsters, too, are remarkable for their longevity. They have been known to live
+          for over a hundred years. Where most animals accumulate damage to cells, DNA,
+          and tissue over time, lobsters repair themselves continually — so their organs,
+          cells, and even DNA stay young.
+        </p>
+      </div>
+
       <!-- Pullquote: lives in flow between paragraphs. ScrollTrigger pins it
            during the takeover; pin adds only as much scroll as we need. -->
-      <aside class="pullquote-wrap" data-pullquote-wrap>
+      <aside class="pullquote-wrap" data-pullquote-wrap data-article="spain">
         <div class="pullquote-wash" aria-hidden="true"></div>
         <div class="pullquote-mark" aria-hidden="true">&ldquo;</div>
         <blockquote class="pullquote" data-pullquote>
@@ -68,7 +88,24 @@
         </blockquote>
       </aside>
 
-      <div class="article-body" data-body>
+      <aside class="pullquote-wrap" data-pullquote-wrap data-article="molerat">
+        <div class="pullquote-wash" aria-hidden="true"></div>
+        <div class="pullquote-mark" aria-hidden="true">&ldquo;</div>
+        <blockquote class="pullquote" data-pullquote>
+          <p class="pullquote-text" data-pullquote-text>
+            If the jellyfish managed to escape disease and predation, it could live
+            forever.
+          </p>
+          <footer class="pullquote-attribution" data-pullquote-attr>
+            <span class="dash" aria-hidden="true">—</span>
+            <span class="who">Aria Schrecker</span>
+            <span class="sep" aria-hidden="true">·</span>
+            <cite>The perks of being a mole&nbsp;rat</cite>
+          </footer>
+        </blockquote>
+      </aside>
+
+      <div class="article-body" data-body data-article="spain">
         <p>
           But there are many countries that became rich after Spain and sprawled out.
           Apart from timing, Spain's cities benefited from sophisticated public and
@@ -95,6 +132,31 @@
           United Kingdom and 43 percent in Belgium.
         </p>
       </div>
+
+      <div class="article-body" data-body data-article="molerat">
+        <p>
+          Homo sapiens are strangely long-lived. There are several measures by which this
+          is true: size, heart rate, and reproductive window. If humans had the lifespan
+          of a random animal their size, we would live between 20 and 50 years.
+        </p>
+        <p>
+          We don't just have long lives for our size, we also have long lives for our
+          heart rates. Most mammals get about one billion heartbeats in their lifetime;
+          humans get more than two billion. Small animals have fast heart rates and short
+          lives, while large animals have slow heart rates and long ones.
+        </p>
+        <p>
+          Physiologically, humans share some of the cancer-fighting adaptations that
+          other large, long-lived animals rely on. The puzzle of how a big, long-lived
+          body keeps cancer at bay even though it has so many more cells is known as
+          Peto's paradox.
+        </p>
+        <p>
+          We are nothing like the Turritopsis dohrnii, and few of us would want to live
+          like a clam or a tortoise. But the existence of animals that can live for
+          centuries makes it worth asking what the underlying secret of aging really is.
+        </p>
+      </div>
     </article>
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -103,6 +165,7 @@
     <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js" defer></script>
 
     <script src="../shared/nav.js" defer></script>
+    <script src="../shared/articles.js" defer></script>
     <script src="pullquote.js" defer></script>
   </body>
 </html>

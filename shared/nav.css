@@ -34,6 +34,13 @@
 }
 .proto-back .arrow { display: inline-block; margin-right: 0.4em; }
 
+/* right-side control cluster — holds the article toggle + variant toggle */
+.proto-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 /* variant toggle — small pill group */
 .variant-toggle {
   display: inline-flex;
@@ -69,6 +76,8 @@
 
 /* mobile */
 @media (max-width: 640px) {
-  .proto-chrome { padding: 0.85rem 1rem; }
+  .proto-chrome { padding: 0.85rem 1rem; align-items: flex-start; }
+  .proto-controls { flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
+  .variant-toggle { font-size: 0.6rem; }
   .variant-toggle button { padding: 0.35rem 0.6rem; }
 }

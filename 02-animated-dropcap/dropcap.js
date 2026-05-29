@@ -38,7 +38,10 @@
     const mount = document.getElementById("article-mount");
     if (!mount) return;
     try {
-      const res = await fetch("../assets/article-content.html");
+      const src =
+        (window.ProtoArticle && ProtoArticle.data.body) ||
+        "../assets/article-content.html";
+      const res = await fetch(src);
       mount.innerHTML = await res.text();
     } catch (err) {
       console.warn("article-content.html not loaded:", err);
@@ -269,6 +272,8 @@
       console.error("GSAP failed to load");
       return;
     }
+
+    if (window.ProtoArticle) ProtoArticle.applyHeader();
 
     await loadArticleBody();
 
