@@ -67,6 +67,15 @@ html, body { background: var(--paper); }
   color: var(--ink);
 }
 
+/* Compose the mole-rat title as a deliberate couplet — "The perks of /
+ * being a mole rat" — instead of orphaning "mole rat". SplitText bakes the
+ * break from the natural wrap, so we force it in CSS: a measure wide enough
+ * for "being a mole rat" (~14ch) but too narrow for "The perks of being"
+ * (~16ch). Expressed in ch so it tracks the responsive font clamp. Scoped to
+ * this article so the Spain title is unaffected; variant B hides this title
+ * (it's cloned into the hero overlay) so the cap never touches the overlay. */
+html[data-article="molerat"] .article-title { max-width: 15ch; }
+
 .article-dek {
   margin: 0 0 1.5rem;
   font-size: clamp(1.05rem, 1.35vw, 1.2rem);
@@ -87,7 +96,14 @@ html, body { background: var(--paper); }
 
 /* --- SplitText masks ----------------------------------------------------- */
 
-.split-mask { padding-bottom: 0.08em; }
+/* SplitText (mask: "lines") wraps each .split-line in an overflow-clipped
+ * .split-mask-line-mask. At our tight title leading (1.02) descenders poke
+ * outside the line box and get clipped by that mask — so we pad the line
+ * to extend the clip window below the baseline, then pull the mask back up
+ * by the same amount so the rendered leading is unchanged. The yPercent
+ * reveal still hides the line fully (it travels by its padded height). */
+.split-line { padding-bottom: 0.12em; }
+.split-mask-line-mask { margin-bottom: -0.12em; }
 
 /* ==========================================================================
    VARIANT B — Title card
